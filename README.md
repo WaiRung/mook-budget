@@ -46,7 +46,7 @@ See [PWA.md](PWA.md) for detailed PWA features and installation instructions.
 
 ### Prerequisites
 
-- Node.js (v22 or higher)
+- Node.js (v26 or higher)
 - yarn
 
 ### Installation
