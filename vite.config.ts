@@ -27,8 +27,8 @@ export default defineConfig({
         theme_color: '#3b82f6',
         background_color: '#ffffff',
         display: 'standalone',
-        scope: '/thai-law/',
-        start_url: '/thai-law/',
+        scope: '/mook-budget/',
+        start_url: '/mook-budget/',
         icons: [
           {
             src: 'icon-192.png',
@@ -65,5 +65,5 @@ export default defineConfig({
       }
     })
   ],
-  base: '/thai-law/',
+  base: '/mook-budget/',
 })
