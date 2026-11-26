@@ -123,7 +123,7 @@ Two new components were added to handle loading and error states:
 Without setting `VITE_API_BASE_URL`, the app will use static data:
 
 ```bash
-yarn dev
+npm run dev
 ```
 
 ### Test with API
@@ -133,7 +133,7 @@ yarn dev
 3. Start the development server:
 
 ```bash
-yarn dev
+npm run dev
 ```
 
 The app will attempt to load from the API and fall back to static data if it fails.

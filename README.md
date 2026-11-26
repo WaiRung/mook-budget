@@ -47,7 +47,7 @@ See [PWA.md](PWA.md) for detailed PWA features and installation instructions.
 ### Prerequisites
 
 - Node.js (v26 or higher)
-- yarn
+- npm (included with Node.js)
 
 ### Installation
 
@@ -59,12 +59,12 @@ cd thai-law
 
 2. Install dependencies:
 ```bash
-yarn install
+npm install
 ```
 
 3. Start the development server:
 ```bash
-yarn dev
+npm run dev
 ```
 
 4. Open your browser and navigate to `http://localhost:5173`
@@ -72,7 +72,7 @@ yarn dev
 ### Build for Production
 
 ```bash
-yarn build
+npm run build
 ```
 
 The built files will be in the `dist` directory.
@@ -80,7 +80,7 @@ The built files will be in the `dist` directory.
 ### Preview Production Build
 
 ```bash
-yarn preview
+npm run preview
 ```
 
 ## Project Structure 📁
