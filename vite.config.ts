@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
-import { viteStaticCopy } from 'vite-plugin-static-copy'
+
 
 const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 
@@ -9,21 +9,14 @@ const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 export default defineConfig({
   plugins: [
     vue(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
-          dest: ''
-        }
-      ]
-    }),
+
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
       manifest: {
-        name: 'Thai Law',
-        short_name: 'Thai Law',
-        description: 'Learn Thai Law with multiple interactive games',
+        name: 'ระบบติดตามงบประมาณ',
+        short_name: 'งบประมาณ',
+        description: 'ระบบอ่าน Excel และติดตามการใช้จ่าย',
         theme_color: '#3b82f6',
         background_color: '#ffffff',
         display: 'standalone',
@@ -45,7 +38,7 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2,mjs}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2,mjs,xlsx}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

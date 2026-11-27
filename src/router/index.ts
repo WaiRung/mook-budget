@@ -1,102 +1,25 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
-import MainMenuView from '../views/MainMenuView.vue'
-import CategoryView from '../views/CategoryView.vue'
-import FlashcardView from '../views/FlashcardView.vue'
-import FlashcardDataSourceView from '../views/FlashcardDataSourceView.vue'
-import SectionCategoriesView from '../views/SectionCategoriesView.vue'
-import SectionsListView from '../views/SectionsListView.vue'
-import SectionDataSourceView from '../views/SectionDataSourceView.vue'
-import QuizLawCategoryView from '../views/QuizLawCategoryView.vue'
-import QuizLawView from '../views/QuizLawView.vue'
-import QuizLawDataSourceView from '../views/QuizLawDataSourceView.vue'
-import DiagramView from '../views/DiagramView.vue'
-import DocumentView from '../views/DocumentView.vue'
+import AccountingView from '../views/AccountingView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'main-menu',
-    component: MainMenuView,
-  },
-  {
-    path: '/flashcards',
-    name: 'flashcard-categories',
-    component: CategoryView,
-  },
-  {
-    path: '/flashcards/:categoryId/datasources',
-    name: 'flashcard-datasources',
-    component: FlashcardDataSourceView,
-    props: true,
-  },
-  {
-    path: '/flashcards/:categoryId/:dataSourceIndex?',
-    name: 'flashcards',
-    component: FlashcardView,
-    props: true,
-  },
-  {
-    path: '/sections',
-    name: 'sections-list',
-    component: SectionCategoriesView,
-  },
-  {
-    path: '/sections/:categoryId/datasources',
-    name: 'section-datasources',
-    component: SectionDataSourceView,
-    props: true,
-  },
-  {
-    path: '/sections/:categoryId/:dataSourceIndex?',
-    name: 'sections-detail',
-    component: SectionsListView,
-    props: true,
-  },
-  {
-    path: '/quizlaw',
-    name: 'quizlaw-categories',
-    component: QuizLawCategoryView,
-  },
-  {
-    path: '/quizlaw/:categoryId/datasources',
-    name: 'quizlaw-datasources',
-    component: QuizLawDataSourceView,
-    props: true,
-  },
-  {
-    path: '/quizlaw/:categoryId/:dataSourceIndex?',
-    name: 'quizlaw',
-    component: QuizLawView,
-    props: true,
-  },
-  {
-    path: '/diagrams',
-    name: 'diagrams',
-    component: DiagramView,
-  },
-  {
-    path: '/documents',
-    name: 'documents',
-    component: DocumentView,
+    name: 'accounting',
+    component: AccountingView,
   },
 ]
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior(_to, _from, _savedPosition) {
-    // Always scroll to top on navigation
+  scrollBehavior() {
     return { top: 0 }
   },
 })
 
-// Navigation guard to prevent accidental exits
 router.beforeEach((to) => {
-  // If trying to navigate to undefined route, redirect to home
-  if (to.matched.length === 0) {
-    return '/'
-  }
+  if (to.matched.length === 0) return '/'
 })
 
 export default router

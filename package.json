@@ -1,7 +1,7 @@
 {
-  "name": "thai-law",
+  "name": "mook-budget",
   "version": "1.0.0",
-  "description": "Thai Law Game with Vue 3, TypeScript, and Tailwind CSS",
+  "description": "Thai Excel-based budget and expense tracker",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,8 +9,9 @@
     "preview": "vite preview"
   },
   "keywords": [
-    "flashcard",
-    "thai-law",
+    "budget",
+    "accounting",
+    "excel",
     "vue",
     "typescript"
   ],
@@ -21,6 +22,7 @@
   },
   "dependencies": {
     "pdfjs-dist": "^6.5.438",
+    "read-excel-file": "^6.0.1",
     "vue": "^3.5.46",
     "vue-router": "^5.5.3"
   },
@@ -32,7 +34,6 @@
     "typescript": "^6.0.3",
     "vite": "^8.4.0",
     "vite-plugin-pwa": "^2.0.0",
-    "vite-plugin-static-copy": "^4.1.1",
     "vue-tsc": "^3.3.14",
     "workbox-build": "^7.4.1",
     "workbox-window": "^7.4.1"
