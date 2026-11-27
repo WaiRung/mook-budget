@@ -5,14 +5,14 @@
         <div class="brand-mark" aria-hidden="true">฿</div>
         <div>
           <h1>ระบบติดตามงบประมาณ</h1>
-          <p>จัดการและบันทึกการใช้จ่ายจาก Excel</p>
+          <p>ติดตามงบประมาณและบันทึกค่าใช้จ่าย</p>
         </div>
       </div>
 
-      <label class="upload-button">
-        <input type="file" accept=".xlsx,.xls" @change="handleUpload" />
+      <label v-if="selectedSheet && selectedTable" class="upload-button">
+        <input type="file" accept=".xlsx" @change="handleUpload" />
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v5h14v-5" /></svg>
-        เปิดไฟล์ Excel
+        เปลี่ยนไฟล์
       </label>
     </header>
 
@@ -25,7 +25,11 @@
     <section v-else-if="error" class="state-card state-card--error">
       <h2>ไม่สามารถอ่านไฟล์ได้</h2>
       <p>{{ error }}</p>
-      <button type="button" @click="loadDefaultWorkbook">ลองใหม่อีกครั้ง</button>
+      <label class="upload-button upload-button--primary">
+        <input type="file" accept=".xlsx" @change="handleUpload" />
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v5h14v-5" /></svg>
+        เลือกไฟล์อื่น
+      </label>
     </section>
 
     <template v-else-if="selectedSheet && selectedTable">
@@ -188,28 +192,37 @@
       </section>
     </template>
 
-    <section v-else class="state-card">
-      <h2>ไม่พบตารางงบประมาณ</h2>
-      <p>ไฟล์ต้องมีคอลัมน์ “รายการ”, “รายละเอียด”, “จำนวน (บาท)” และ “รวม”</p>
+    <section v-else class="state-card state-card--upload">
+      <div class="upload-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M6 3.75h8l4 4v12.5H6zM14 3.75v4h4M9 12h6M9 15h6M9 18h3" /></svg>
+      </div>
+      <span class="eyebrow">เริ่มต้นใช้งาน</span>
+      <h2>เลือกไฟล์งบประมาณของคุณ</h2>
+      <p>อัปโหลดไฟล์ Excel เพื่อดูงบประมาณ แผนแบ่งงวด และบันทึกค่าใช้จ่าย</p>
+      <label class="upload-button upload-button--primary">
+        <input type="file" accept=".xlsx" @change="handleUpload" />
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v5h14v-5" /></svg>
+        เลือกไฟล์ Excel
+      </label>
+      <small class="upload-note">รองรับไฟล์ .xlsx · ข้อมูลค่าใช้จ่ายเก็บไว้ในเบราว์เซอร์นี้</small>
     </section>
   </main>
 </template>
 
 <script setup lang="ts">
 import readXlsxFile, { readSheetNames } from 'read-excel-file'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { parseBudgetSheet, type ExcelRow } from '../lib/excelParser'
 import type { BudgetItem, BudgetSheet, BudgetTable, ExpenseTransaction } from '../types/accounting'
 
-const DEFAULT_FILE = '00_20251119 ปรับงบประมาณและแบ่งงวด.xlsx'
 const STORAGE_KEY = 'mook-budget:transactions:v1'
 
 const sheets = ref<BudgetSheet[]>([])
 const selectedSheetName = ref('')
 const selectedTableId = ref('')
 const selectedItemId = ref('')
-const fileName = ref(DEFAULT_FILE)
-const loading = ref(true)
+const fileName = ref('')
+const loading = ref(false)
 const error = ref('')
 const transactions = ref<ExpenseTransaction[]>(loadTransactions())
 const transactionAmount = ref<number | ''>('')
@@ -262,21 +275,11 @@ async function readWorkbook(blob: Blob, name: string) {
   }
 }
 
-async function loadDefaultWorkbook() {
-  loading.value = true
-  error.value = ''
-  try {
-    const response = await fetch(`${import.meta.env.BASE_URL}${encodeURI(DEFAULT_FILE)}`)
-    if (!response.ok) throw new Error(`ไม่พบไฟล์ Excel ในโปรเจกต์ (${response.status})`)
-    await readWorkbook(await response.blob(), DEFAULT_FILE)
-  } catch (cause) {
-    loading.value = false
-    error.value = cause instanceof Error ? cause.message : 'ไม่สามารถโหลดไฟล์เริ่มต้นได้'
-  }
-}
 
 async function handleUpload(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0]
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
   if (file) await readWorkbook(file, file.name)
 }
 
@@ -368,7 +371,6 @@ watch(selectedItem, (item) => {
   transactionDetails.value = ''
 })
 
-onMounted(loadDefaultWorkbook)
 </script>
 
 <style scoped>
@@ -379,8 +381,11 @@ onMounted(loadDefaultWorkbook)
 h1,h2,h3,p { margin: 0; }
 .brand h1 { font-size: 1.15rem; letter-spacing: -.02em; }
 .brand p { margin-top: .12rem; color: var(--muted); font-size: .82rem; }
-.upload-button { display: flex; align-items: center; gap: .55rem; padding: .7rem 1rem; border: 1px solid #d9e1ee; border-radius: 11px; background: white; color: #31415f; font-size: .9rem; font-weight: 650; cursor: pointer; box-shadow: 0 2px 7px #14213d08; }
-.upload-button input { display: none; }
+.upload-button { position: relative; display: flex; align-items: center; gap: .55rem; padding: .7rem 1rem; border: 1px solid #d9e1ee; border-radius: 11px; background: white; color: #31415f; font-size: .9rem; font-weight: 650; cursor: pointer; box-shadow: 0 2px 7px #14213d08; }
+.upload-button:focus-within { outline: 3px solid #2f66f54a; outline-offset: 2px; }
+.upload-button input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.upload-button--primary { width: fit-content; margin: 1.5rem auto 0; padding: .85rem 1.25rem; border-color: var(--blue); background: var(--blue); color: white; box-shadow: 0 8px 18px #2f66f52b; }
+.upload-button--primary:hover { background: #2457df; }
 .upload-button svg { width: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .summary-strip,.toolbar,.table-tabs,.content-grid { max-width: 1440px; margin-inline: auto; }
 .summary-strip { margin-top: 1.5rem; display: grid; grid-template-columns: minmax(300px, 2fr) repeat(3, minmax(150px, 1fr)); gap: 1px; overflow: hidden; background: var(--line); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 10px 30px #172b4d0a; }
@@ -471,7 +476,12 @@ h1,h2,h3,p { margin: 0; }
 .state-card { max-width: 620px; margin: 12vh auto 0; padding: 3rem 2rem; border: 1px solid var(--line); border-radius: 20px; background: white; text-align: center; box-shadow: 0 15px 40px #172b4d0c; }
 .state-card h2 { margin-top: .8rem; font-size: 1.2rem; }
 .state-card p { margin-top: .5rem; color: var(--muted); font-size: .85rem; }
-.state-card button { margin-top: 1rem; border: 0; border-radius: 9px; padding: .7rem 1rem; background: var(--blue); color: white; cursor: pointer; }
+.state-card--upload { max-width: 680px; padding: 3.5rem 2rem; }
+.state-card--upload .eyebrow { display: block; margin-top: 1.25rem; }
+.upload-mark { width: 64px; height: 64px; display: grid; place-items: center; margin: 0 auto; border: 1px solid #dce6ff; border-radius: 20px; background: #f1f5ff; color: var(--blue); }
+.upload-mark svg { width: 32px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.upload-note { display: block; margin-top: 1rem; color: var(--muted); font-size: .72rem; }
+.state-card--error .upload-button { margin-top: 1.25rem; }
 .state-card--error { border-color: #f1d1d1; }
 .spinner { width: 38px; height: 38px; display: inline-block; border: 3px solid #e8edf7; border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
