@@ -40,8 +40,9 @@
           <span class="sheet-label"><i></i>{{ selectedSheet.name }}</span>
         </div>
         <div class="summary-stat">
-          <span>งบทั้งหมด</span>
+          <span>{{ selectedSheet.projectSummary?.name || 'งบทั้งหมด' }}</span>
           <strong>{{ money(totalBudget) }}</strong>
+          <small v-if="selectedSheet.projectSummary?.percentage !== null && selectedSheet.projectSummary?.percentage !== undefined" class="summary-percentage">{{ percent(selectedSheet.projectSummary.percentage) }} ของโครงการ</small>
         </div>
         <div class="summary-stat">
           <span>ใช้ไปแล้ว</span>
@@ -77,7 +78,7 @@
           <span class="table-number">{{ table.number }}</span>
           <span class="table-copy">
             <strong>{{ table.title }}</strong>
-            <small>{{ table.items.length }} รายการ · {{ money(tableBudget(table)) }}</small>
+            <small>{{ table.items.length }} รายการ · {{ money(tableBudget(table)) }}<template v-if="table.summary.percentage !== null"> · {{ percent(table.summary.percentage) }}</template></small>
           </span>
           <span class="table-balance">{{ money(tableRemaining(table)) }}</span>
         </button>
@@ -108,7 +109,7 @@
               </span>
               <span class="item-money">
                 <strong>{{ money(itemRemaining(item)) }}</strong>
-                <small>จาก {{ money(item.amount) }}</small>
+                <small>จาก {{ money(item.amount) }}<template v-if="item.percentage !== null"> · {{ percent(item.percentage) }}</template></small>
               </span>
               <span class="progress-track" aria-hidden="true">
                 <span :style="{ width: `${Math.min(100, itemProgress(item))}%` }"></span>
@@ -121,14 +122,20 @@
               <span>{{ selectedTable.summary.name }}</span>
               <small>จากยอดสรุปท้ายตาราง Excel</small>
             </div>
-            <strong>{{ money(selectedTable.summary.amount || selectedTable.items.reduce((sum, item) => sum + item.amount, 0)) }}</strong>
+            <div class="table-total-amount">
+              <strong>{{ money(selectedTable.summary.amount || selectedTable.items.reduce((sum, item) => sum + item.amount, 0)) }}</strong>
+              <span v-if="selectedTable.summary.percentage !== null">{{ percent(selectedTable.summary.percentage) }}</span>
+            </div>
           </div>
         </div>
 
         <aside v-if="selectedItem" class="detail-panel">
           <div class="detail-header">
             <span class="eyebrow">รายละเอียดรายการ</span>
-            <h2>{{ selectedItem.name }}</h2>
+            <div class="detail-title-row">
+              <h2>{{ selectedItem.name }}</h2>
+              <span v-if="selectedItem.percentage !== null" class="percentage-badge">{{ percent(selectedItem.percentage) }}</span>
+            </div>
             <p>{{ selectedItem.detail }}</p>
           </div>
 
@@ -233,7 +240,7 @@ const selectedSheet = computed(() => sheets.value.find((sheet) => sheet.name ===
 const selectedTable = computed(() => selectedSheet.value?.tables.find((table) => table.id === selectedTableId.value) ?? selectedSheet.value?.tables[0] ?? null)
 const selectedItem = computed(() => selectedTable.value?.items.find((item) => item.id === selectedItemId.value) ?? selectedTable.value?.items[0] ?? null)
 const currentItems = computed(() => selectedSheet.value?.tables.flatMap((table) => table.items) ?? [])
-const totalBudget = computed(() => currentItems.value.reduce((sum, item) => sum + item.amount, 0))
+const totalBudget = computed(() => selectedSheet.value?.projectSummary?.amount || currentItems.value.reduce((sum, item) => sum + item.amount, 0))
 const totalSpent = computed(() => currentItems.value.reduce((sum, item) => sum + itemSpent(item), 0))
 const totalRemaining = computed(() => totalBudget.value - totalSpent.value)
 const selectedTransactions = computed(() => selectedItem.value
@@ -355,6 +362,10 @@ function money(value: number) {
   return new Intl.NumberFormat('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value)
 }
 
+function percent(value: number) {
+  return `${new Intl.NumberFormat('th-TH', { maximumFractionDigits: 2 }).format(value)}%`
+}
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
 }
@@ -397,6 +408,7 @@ h1,h2,h3,p { margin: 0; }
 .summary-stat span { color: var(--muted); font-size: .78rem; }
 .summary-stat strong { margin-top: .5rem; font-size: clamp(1.3rem, 2.2vw, 1.8rem); letter-spacing: -.04em; }
 .summary-stat strong::after { content: ' ฿'; color: #9aa5b9; font-size: .8rem; font-weight: 600; }
+.summary-percentage { margin-top: .3rem; color: #6b7890; font-size: .68rem; }
 .summary-stat--balance strong { color: #168b68; }
 .toolbar { margin-top: 2rem; display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
 .toolbar-title h2 { margin-top: .2rem; font-size: 1.35rem; }
@@ -434,7 +446,11 @@ h1,h2,h3,p { margin: 0; }
 .table-total div { display: flex; flex-direction: column; }
 .table-total span { font-size: .82rem; font-weight: 750; }
 .table-total small { margin-top: .15rem; color: var(--muted); font-size: .67rem; }
-.table-total strong { font-size: 1rem; }
+.table-total-amount { align-items: end; flex: 0 0 auto; }
+.table-total-amount strong { font-size: 1rem; }
+.table-total-amount span { margin-top: .2rem; color: var(--blue); font-size: .68rem; font-weight: 700; }
+.detail-title-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.percentage-badge { flex: 0 0 auto; padding: .25rem .5rem; border-radius: 999px; background: #eef3ff; color: var(--blue); font-size: .68rem; font-weight: 750; }
 .detail-panel { position: sticky; top: 1rem; }
 .detail-header p { margin-top: .55rem; color: var(--muted); font-size: .8rem; line-height: 1.55; }
 .balance-card { margin: 1rem 1.25rem; padding: 1.1rem; border: 1px solid #dbe9e3; border-radius: 13px; background: linear-gradient(145deg, #f6fcf9, #fafffd); }

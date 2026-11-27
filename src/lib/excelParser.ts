@@ -25,6 +25,7 @@ export function parseBudgetSheet(name: string, rows: ExcelRow[]): BudgetSheet | 
   let detailColumn = -1
   let amountColumn = -1
   let totalColumn = -1
+  let percentageColumn = -1
 
   for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
     const row = rows[rowIndex] ?? []
@@ -32,6 +33,7 @@ export function parseBudgetSheet(name: string, rows: ExcelRow[]): BudgetSheet | 
     const foundDetail = findColumn(row, 'รายละเอียด')
     const foundAmount = findColumn(row, 'จำนวน (บาท)')
     const foundTotal = findColumn(row, 'รวม')
+    const foundPercentage = findColumn(row, 'ร้อยละ')
 
     if (foundName >= 0 && foundDetail >= 0 && foundAmount >= 0 && foundTotal > foundAmount) {
       headerIndex = rowIndex
@@ -39,6 +41,7 @@ export function parseBudgetSheet(name: string, rows: ExcelRow[]): BudgetSheet | 
       detailColumn = foundDetail
       amountColumn = foundAmount
       totalColumn = foundTotal
+      percentageColumn = foundPercentage
       break
     }
   }
@@ -101,6 +104,9 @@ export function parseBudgetSheet(name: string, rows: ExcelRow[]): BudgetSheet | 
         detail: textFrom(row[detailColumn]),
         amount,
         total: numberFrom(row[totalColumn]),
+        percentage: percentageColumn >= 0 && row[percentageColumn] !== null && row[percentageColumn] !== undefined
+          ? numberFrom(row[percentageColumn]) * 100
+          : null,
         periods: periodColumns.map((column) => ({
           column,
           name: textFrom(header[column]),
@@ -114,6 +120,9 @@ export function parseBudgetSheet(name: string, rows: ExcelRow[]): BudgetSheet | 
       name: summaryName || textFrom(start[nameColumn]) || `ตารางที่ ${tableNumber}`,
       amount: numberFrom(rows[summaryRow]?.[amountColumn]),
       total: numberFrom(rows[summaryRow]?.[totalColumn]),
+      percentage: percentageColumn >= 0 && rows[summaryRow]?.[percentageColumn] !== null && rows[summaryRow]?.[percentageColumn] !== undefined
+        ? numberFrom(rows[summaryRow]?.[percentageColumn]) * 100
+        : null,
       periods: periodColumns.map((column) => numberFrom(rows[summaryRow]?.[column])),
     }
 
@@ -127,5 +136,16 @@ export function parseBudgetSheet(name: string, rows: ExcelRow[]): BudgetSheet | 
     }]
   })
 
-  return { name, tables }
+  const projectSummaryRow = rows.findIndex((row) => textFrom(row[nameColumn]) === 'รวมงบประมาณทั้งชุดโครงการ')
+  const projectSummary: BudgetSummary | null = projectSummaryRow >= 0 ? {
+    name: textFrom(rows[projectSummaryRow]?.[nameColumn]),
+    amount: numberFrom(rows[projectSummaryRow]?.[amountColumn]),
+    total: numberFrom(rows[projectSummaryRow]?.[totalColumn]),
+    percentage: percentageColumn >= 0 && rows[projectSummaryRow]?.[percentageColumn] !== null && rows[projectSummaryRow]?.[percentageColumn] !== undefined
+      ? numberFrom(rows[projectSummaryRow]?.[percentageColumn]) * 100
+      : null,
+    periods: periodColumns.map((column) => numberFrom(rows[projectSummaryRow]?.[column])),
+  } : null
+
+  return { name, tables, projectSummary }
 }

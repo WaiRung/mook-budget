@@ -12,6 +12,7 @@ export interface BudgetItem {
   detail: string;
   amount: number;
   total: number;
+  percentage: number | null;
   periods: BudgetPeriod[];
 }
 
@@ -19,6 +20,7 @@ export interface BudgetSummary {
   name: string;
   amount: number;
   total: number;
+  percentage: number | null;
   periods: number[];
 }
 
@@ -34,6 +36,7 @@ export interface BudgetTable {
 export interface BudgetSheet {
   name: string;
   tables: BudgetTable[];
+  projectSummary: BudgetSummary | null;
 }
 
 export interface ExpenseTransaction {
