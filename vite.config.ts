@@ -3,8 +3,6 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 
 
-const ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365
-
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -38,23 +36,7 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2,mjs,xlsx}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: ONE_YEAR_IN_SECONDS
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ]
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2,mjs,xlsx}']
       }
     })
   ],

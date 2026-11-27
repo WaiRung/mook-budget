@@ -3,62 +3,6 @@
 
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'
-  const component: DefineComponent<{}, {}, any>
+  const component: DefineComponent<Record<string, never>, Record<string, never>, unknown>
   export default component
-}
-
-// Type definitions for categories.json config structure
-declare module '../config/categories.json' {
-  /**
-   * Represents a paired data source for a category
-   * Allows combining API data, filters, and descriptions from multiple sources
-   */
-  export interface DataSource {
-    /** API filename (without .json extension) for fetching question data */
-    apiFilename?: string;
-    /** Filter file path (relative to src/filters/) for allowed question IDs */
-    filterFilename?: string;
-    /** Description API path for fetching section descriptions */
-    descriptionApiPath?: string;
-    /** Optional display name for this data source (Thai) */
-    nameTh?: string;
-    /** Optional display name for this data source (English) */
-    nameEn?: string;
-    /** Optional section prefix override (e.g., "ข้อ" instead of "มาตรา") */
-    sectionPrefix?: string;
-  }
-
-  export interface CategoryConfig {
-    id: string;
-    enabled: boolean;
-    nameTh: string;
-    nameEn: string;
-    icon: string;
-    // Legacy fields (backward compatible)
-    apiFilename?: string | string[];
-    filterFilename?: string | string[];
-    descriptionApiPath?: string | string[];
-    // New format with paired data sources
-    dataSources?: DataSource[];
-    questions: any[];
-  }
-
-  export interface CategoriesConfig {
-    categories: CategoryConfig[];
-  }
-
-  const config: CategoriesConfig;
-  export default config;
-}
-
-// Vite environment variable typings
-interface ImportMetaEnv {
-  readonly VITE_API_BASE_URL?: string;
-  readonly MODE: string;
-  readonly DEV: boolean;
-  readonly PROD: boolean;
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
 }

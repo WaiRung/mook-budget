@@ -21,7 +21,6 @@
     "node": ">=26.0.0"
   },
   "dependencies": {
-    "pdfjs-dist": "^6.5.438",
     "read-excel-file": "^6.0.1",
     "vue": "^3.5.46",
     "vue-router": "^5.5.3"
